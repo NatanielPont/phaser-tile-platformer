@@ -40,7 +40,7 @@ function collectCoin (player, coin) {
   text.setText(`Coins: ${coinScore} - 16`) // set the text to show the current score
   if (coins.children.entries.length === 0) {
     this.scene.restart()
-    coinScore=0;
+    coinScore = 0
   }
 
   return false
