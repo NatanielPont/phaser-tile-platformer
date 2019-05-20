@@ -53,7 +53,7 @@ function createCoins () {
 function createEnemies () {
   EnemyLayer.forEach(object => {
     let obj = enemies.create(object.x, object.y, 'harpy')
-    obj.setScale(object.width / 60, object.height / 64)
+    obj.setScale(object.width / 60, object.height / 65)
     obj.setOrigin(0)
     obj.body.width = object.width
     obj.body.height = object.height
@@ -121,7 +121,7 @@ class Game extends Phaser.Scene {
     this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
     this.load.tilemapTiledJSON('map', map)
     this.load.image('spark', Spark)
-    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 64 })
+    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 65 })
     this.load.audio('dieSound', soundDie)
     this.load.audio('coinSound', soundTakeCoin)
   }
