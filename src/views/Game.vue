@@ -3,6 +3,7 @@
 </template>
 
 <script>
+// assets
 import Phaser from 'phaser'
 import tile from '../assets/tilesets/slopes32mud.png'
 import coin from '../assets/img/coin7.png'
@@ -10,6 +11,10 @@ import Player from '../assets/img/player.png'
 import Harpy from '../assets/img/fly_enemy.png'
 import Spark from '../assets/particles/blue.png'
 import map from '../assets/tilemaps/map.json'
+import soundDie from '../assets/audio/dead.mp3'
+import soundTakeCoin from '../assets/audio/coin.mp3'
+
+// variables of game
 var player
 var cursors
 let CoinLayer
@@ -23,6 +28,10 @@ let emitter
 var particles
 let level2 = false
 let help
+
+// sounds
+let soundDead
+let soundCoin
 
 let worldLayer
 let innerWorldLayer
@@ -53,6 +62,7 @@ function createEnemies () {
   })
 }
 function collectCoin (player, coin) {
+  soundCoin.play()
   coin.destroy(coin.x, coin.y) // remove the tile/coin
   coinScore++ // increment the score
   text.setText(`Coins: ${coinScore} - 16`) // set the text to show the current score
@@ -73,6 +83,7 @@ function collectCoin (player, coin) {
 }
 
 function gameOver () {
+  soundDead.play()
   this.scene.start('GameOver')
 }
 let config
@@ -111,6 +122,8 @@ class Game extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', map)
     this.load.image('spark', Spark)
     this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 64 })
+    this.load.audio('dieSound', soundDie)
+    this.load.audio('coinSound', soundTakeCoin)
   }
   create () {
     console.log('CREATED')
@@ -137,6 +150,11 @@ class Game extends Phaser.Scene {
     // this.physics.add.collider(enemies, worldLayer)
     // this.physics.add.collider(enemies, innerWorldLayer)
 
+    // sounds
+    soundDead = this.sound.add('dieSound')
+    soundCoin = this.sound.add('coinSound')
+
+    // anims
     this.anims.create({
       key: 'idle',
       frames: this.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
