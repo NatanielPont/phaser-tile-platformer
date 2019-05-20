@@ -7,18 +7,29 @@ import Phaser from 'phaser'
 import tile from '../assets/tilesets/slopes32mud.png'
 import coin from '../assets/img/coin7.png'
 import Player from '../assets/img/player.png'
+import Harpy from '../assets/img/fly_enemy.png'
 import Spark from '../assets/particles/blue.png'
 import map from '../assets/tilemaps/map.json'
 var player
 var cursors
 let CoinLayer
+let EnemyLayer
+let enemies
 let coins
 let mapGame
 let coinScore = 0
 let text
 let emitter
 var particles
+let level2 = false
+let help
 
+let worldLayer
+let innerWorldLayer
+
+function changeDirection (enemy) {
+  enemy.speedX = enemy.speedX * -1
+}
 // let coinScore = 0
 function createCoins () {
   CoinLayer.forEach(object => {
@@ -30,28 +41,48 @@ function createCoins () {
     obj.anims.play('spin', coins)
   })
 }
+function createEnemies () {
+  EnemyLayer.forEach(object => {
+    let obj = enemies.create(object.x, object.y, 'harpy')
+    obj.setScale(object.width / 60, object.height / 64)
+    obj.setOrigin(0)
+    obj.body.width = object.width
+    obj.body.height = object.height
+    obj.staticY = object.y
+    obj.speedX = -100
+  })
+}
 function collectCoin (player, coin) {
   coin.destroy(coin.x, coin.y) // remove the tile/coin
   coinScore++ // increment the score
-  console.log(coins)
-  console.log(coins.children)
-  console.log(coins.children.entries.length)
-  // text.setText(`Coins: ${coinScore} - 16 _ Available : ${coins.children.entries.length}`) // set the text to show the current score
   text.setText(`Coins: ${coinScore} - 16`) // set the text to show the current score
   if (coins.children.entries.length === 0) {
-    this.scene.restart()
-    coinScore = 0
+    if (level2) {
+      this.scene.start('Winner')
+    } else {
+      level2 = true
+      this.scene.restart()
+      // help.setText(`Collect all coins and evade Enemies to win :)`) // set the text to show the current score
+
+      // createEnemies()
+      coinScore = 0
+    }
   }
 
   return false
 }
 
+function gameOver () {
+  this.scene.start('GameOver')
+}
+let config
+
 export default {
-  name: 'Game',
+  name: 'game',
   mounted () {
     // PHASER 2.6 -> phaser-ce
     // PHASER 3.0 -> phaser
-    let config = {
+    config = {
       width: 900,
       height: 700,
       backgroundColor: '#000000',
@@ -62,122 +93,242 @@ export default {
         arcade: {
           gravity: { y: 300 }
         } },
-      scene: {
-        preload: preload,
-        create: create,
-        update: update
-      }
+      scene: [Game, GameOver, Winner]
     }
     // eslint-disable-next-line
       new Phaser.Game(config)
   }
 }
+class Game extends Phaser.Scene {
+  constructor () {
+    super({ key: 'Game' })
+  }
+  preload () {
+    console.log('PRELOAD')
+    this.load.image('tiles', tile)
+    this.load.spritesheet('coin', coin, { frameWidth: 32, frameHeight: 32 })
+    this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
+    this.load.tilemapTiledJSON('map', map)
+    this.load.image('spark', Spark)
+    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 64 })
+  }
+  create () {
+    console.log('CREATED')
+    mapGame = this.make.tilemap({ key: 'map' })
+    const tileset = mapGame.addTilesetImage('slopes32mud', 'tiles')
+    worldLayer = mapGame.createStaticLayer('collision', tileset, 0, 0)
+    innerWorldLayer = mapGame.createStaticLayer('map', tileset, 0, 0)
+    CoinLayer = mapGame.getObjectLayer('CoinLayer')['objects']
+    EnemyLayer = mapGame.getObjectLayer('EnemyLayer')['objects']
 
-function preload () {
-  console.log('PRELOAD')
-  this.load.image('tiles', tile)
-  this.load.spritesheet('coin', coin, { frameWidth: 32, frameHeight: 32 })
-  this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
-  this.load.tilemapTiledJSON('map', map)
-  this.load.image('spark', Spark)
+    // coins
+    coins = this.physics.add.staticGroup()
+    enemies = this.physics.add.group()
+
+    worldLayer.setCollisionBetween(0, 140)
+    innerWorldLayer.setCollisionBetween(0, 140)
+    //
+    player = this.physics.add.sprite(500 / 2, mapGame.heightInPixels - mapGame.heightInPixels / 5, 'player')
+    // enemy = this.physics.add.sprite(500 / 2 + 200, mapGame.heightInPixels - mapGame.heightInPixels / 6, 'harpy')
+    // enemy.staticY = enemy.y
+    // this.physics.startSystem(Phaser.Physics.ARCADE)
+    this.physics.add.collider(player, worldLayer)
+    this.physics.add.collider(player, innerWorldLayer)
+    // this.physics.add.collider(enemies, worldLayer)
+    // this.physics.add.collider(enemies, innerWorldLayer)
+
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
+      frameRate: 5,
+      repeat: -1
+    })
+    // coin
+    this.anims.create({
+      key: 'spin',
+      frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 6 }),
+      frameRate: 10,
+      repeat: -1
+    })
+    this.anims.create({
+      key: 'movement_harpy_right',
+      frames: this.anims.generateFrameNumbers('harpy', { start: 4, end: 7 }),
+      frameRate: 9,
+      repeat: -1
+    })
+    this.anims.create({
+      key: 'movement_harpy_left',
+      frames: this.anims.generateFrameNumbers('harpy', { start: 0, end: 3 }),
+      frameRate: 9,
+      repeat: -1
+    })
+    createCoins()
+    if (level2) {
+      createEnemies()
+    }
+
+    this.physics.add.collider(enemies, worldLayer, changeDirection)
+    this.physics.add.collider(enemies, innerWorldLayer, changeDirection)
+
+    this.physics.add.overlap(player, coins, collectCoin, null, this)
+    this.physics.add.overlap(player, enemies, gameOver, null, this)
+    this.JUMP_SPEED = 400
+    this.cameras.main.setBounds(0, 0, mapGame.widthInPixels, mapGame.heightInPixels)
+    this.cameras.main.startFollow(player)
+
+    cursors = this.input.keyboard.createCursorKeys()
+    help = this.add.text(16, 16, level2 ? `Collect all coins and evade Enemies to win :)` : 'Arrows to move & jump. Collect all coins to get next level.', {
+      fontSize: '18px',
+      fill: '#ffffff'
+    })
+    help.setScrollFactor(0)
+    // score
+    text = this.add.text(570, 70, `Coins: ${coinScore} - 16`, {
+      fontSize: '20px',
+      fill: '#ffffff'
+    })
+    text.setScrollFactor(0)
+    particles = this.add.particles('spark')
+
+    emitter = particles.createEmitter({
+      x: player.body.x + player.body.width / 2,
+      y: player.body.y + player.body.height,
+      angle: { min: 140, max: 180 },
+      speed: 200,
+      gravityY: 300,
+      scale: { start: 0.2, end: 0 },
+      lifespan: { min: 500, max: 1000 },
+      blendMode: 'ADD'
+    })
+  }
+  update () {
+    if (enemies) {
+      enemies.children.entries.forEach(function (enemy) {
+        enemy.setVelocityX(enemy.speedX)
+        enemy.setY(enemy.staticY)
+        enemy.speedX < 0 ? enemy.anims.play('movement_harpy_left', enemies) : enemy.anims.play('movement_harpy_right', enemies)
+      })
+    }
+    player.anims.play('idle', true)
+    if (cursors.left.isDown) {
+      player.setAccelerationX(-200)
+      player.setFrame(2)
+      emitter.setPosition(player.body.x + player.body.width, player.body.y + player.body.height)
+    } else if (cursors.right.isDown) {
+      player.setAccelerationX(200)
+      player.setFrame(1)
+      emitter.setPosition(player.body.x, player.body.y + player.body.height)
+
+      // emitter.setPosition(player.body.x+player.body.width , player.body.y+player.body.height)
+    } else {
+      player.setAccelerationX(0)
+      emitter.setPosition(player.body.x + player.body.width / 2, player.body.y + player.body.height)
+    }
+
+    var onTheGround = player.body.onFloor()
+
+    if (onTheGround) {
+      this.jumps = 2
+      this.jumping = false
+    }
+    if (cursors.up.isDown && onTheGround) {
+      player.setVelocityY(-this.JUMP_SPEED)
+      this.jumps--
+    }
+    if (cursors.up.isUp && this.jumps > 0) {
+      this.jumping = true
+    }
+    if (cursors.up.isDown && !onTheGround && this.jumping) {
+      player.setVelocityY(-this.JUMP_SPEED)
+      this.jumping = false
+      this.jumps--
+    }
+  }
 }
-function create () {
-  console.log('Created')
-  mapGame = this.make.tilemap({ key: 'map' })
-  const tileset = mapGame.addTilesetImage('slopes32mud', 'tiles')
-  const worldLayer = mapGame.createStaticLayer('collision', tileset, 0, 0)
-  const innerWorldLayer = mapGame.createStaticLayer('map', tileset, 0, 0)
-  CoinLayer = mapGame.getObjectLayer('CoinLayer')['objects']
 
-  // coins
-  coins = this.physics.add.staticGroup()
+class GameOver extends Phaser.Scene {
+  constructor () {
+    super({ key: 'GameOver' })
+  }
+  create () {
+    // let clickCount = 0;
+    this.clickCountText = this.add.text(180, config['height'] / 2 - 100, '')
+    this.clickCountText.setText(`GAME OVER!`)
+    this.clickCountText.setFontSize(100)
 
-  worldLayer.setCollisionBetween(0, 140)
-  innerWorldLayer.setCollisionBetween(0, 140)
-  //
-  player = this.physics.add.sprite(500 / 2, mapGame.heightInPixels - mapGame.heightInPixels / 5, 'player')
-  this.physics.add.collider(player, worldLayer)
-  this.physics.add.collider(player, innerWorldLayer)
+    this.clickButton = this.add.text(config['width'] / 2 - 50, config['height'] / 2 + 100, 'RESTART!', { fill: '#0f0' })
+      .setInteractive()
+      .on('pointerover', () => this.enterButtonHoverState())
+      .on('pointerout', () => this.enterButtonRestState())
+      .on('pointerdown', () => this.enterButtonActiveState())
+      .on('pointerup', () => {
+        // this.updateClickCountText(++clickCount);
+        this.enterButtonHoverState()
+        level2 = false
+        coinScore = 0
 
-  this.anims.create({
-    key: 'idle',
-    frames: this.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
-    frameRate: 5,
-    repeat: -1
-  })
-  // coin
-  this.anims.create({
-    key: 'spin',
-    frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 6 }),
-    frameRate: 16,
-    repeat: -1
-  })
-  createCoins()
-  this.physics.add.overlap(player, coins, collectCoin, null, this)
-  this.JUMP_SPEED = 400
-  this.cameras.main.setBounds(0, 0, mapGame.widthInPixels, mapGame.heightInPixels)
-  this.cameras.main.startFollow(player)
+        this.scene.start('Game')
+      })
 
-  cursors = this.input.keyboard.createCursorKeys()
+    // this.updateClickCountText(clickCount);
+  }
 
-  var help = this.add.text(16, 16, 'Arrows to move & jump. Collect all coins to get next level.', {
-    fontSize: '18px',
-    fill: '#ffffff'
-  })
-  help.setScrollFactor(0)
-  // score
-  text = this.add.text(570, 70, `Coins: ${coinScore} - 16`, {
-    fontSize: '20px',
-    fill: '#ffffff'
-  })
-  text.setScrollFactor(0)
-  particles = this.add.particles('spark')
+  // updateClickCountText(clickCount) {
+  //   this.clickCountText.setText(`Button has been clicked ${clickCount} times.`);
+  // }
 
-  emitter = particles.createEmitter({
-    x: player.body.x + player.body.width / 2,
-    y: player.body.y + player.body.height,
-    angle: { min: 140, max: 180 },
-    speed: 200,
-    gravityY: 300,
-    scale: { start: 0.2, end: 0 },
-    lifespan: { min: 500, max: 1000 },
-    blendMode: 'ADD'
-  })
+  enterButtonHoverState () {
+    this.clickButton.setStyle({ fill: '#ff0' })
+  }
+
+  enterButtonRestState () {
+    this.clickButton.setStyle({ fill: '#0f0' })
+  }
+
+  enterButtonActiveState () {
+    this.clickButton.setStyle({ fill: '#0ff' })
+  }
 }
-function update () {
-  // emitter.setY(player.body.y)
-  player.anims.play('idle', true)
-  if (cursors.left.isDown) {
-    player.setAccelerationX(-200)
-    player.setFrame(2)
-    emitter.setPosition(player.body.x + player.body.width, player.body.y + player.body.height)
-  } else if (cursors.right.isDown) {
-    player.setAccelerationX(200)
-    player.setFrame(1)
-    emitter.setPosition(player.body.x, player.body.y + player.body.height)
+class Winner extends Phaser.Scene {
+  constructor () {
+    super({ key: 'Winner' })
+  }
+  create () {
+    // let clickCount = 0;
+    this.clickCountText = this.add.text(200, config['height'] / 2 - 200, '')
+    this.clickCountText2 = this.add.text(100, config['height'] / 2 - 100, '')
+    this.clickCountText.setText(`You Are a `)
+    this.clickCountText.setColor('#0ff')
+    this.clickCountText.setFontSize(90)
+    this.clickCountText2.setText(`crazy WINNER !`)
+    this.clickCountText2.setColor('#ff0')
+    this.clickCountText2.setFontSize(90)
 
-    // emitter.setPosition(player.body.x+player.body.width , player.body.y+player.body.height)
-  } else {
-    player.setAccelerationX(0)
-    emitter.setPosition(player.body.x + player.body.width / 2, player.body.y + player.body.height)
-  }
-  var onTheGround = player.body.onFloor()
+    this.clickButton = this.add.text(config['width'] / 2 - 50, config['height'] / 2 + 100, 'New Game!', { fill: '#0f0' })
+      .setInteractive()
+      .on('pointerover', () => this.enterButtonHoverState())
+      .on('pointerout', () => this.enterButtonRestState())
+      .on('pointerdown', () => this.enterButtonActiveState())
+      .on('pointerup', () => {
+        // this.updateClickCountText(++clickCount);
+        this.enterButtonHoverState()
+        level2 = false
+        coinScore = 0
 
-  if (onTheGround) {
-    this.jumps = 2
-    this.jumping = false
+        this.scene.start('Game')
+      })
   }
-  if (cursors.up.isDown && onTheGround) {
-    player.setVelocityY(-this.JUMP_SPEED)
-    this.jumps--
+
+  enterButtonHoverState () {
+    this.clickButton.setStyle({ fill: '#ff0' })
   }
-  if (cursors.up.isUp && this.jumps > 0) {
-    this.jumping = true
+
+  enterButtonRestState () {
+    this.clickButton.setStyle({ fill: '#0f0' })
   }
-  if (cursors.up.isDown && !onTheGround && this.jumping) {
-    player.setVelocityY(-this.JUMP_SPEED)
-    this.jumping = false
-    this.jumps--
+
+  enterButtonActiveState () {
+    this.clickButton.setStyle({ fill: '#0ff' })
   }
 }
 </script>

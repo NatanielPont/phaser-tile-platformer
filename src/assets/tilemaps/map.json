@@ -26,6 +26,124 @@
         }, 
         {
          "draworder":"topdown",
+         "name":"EnemyLayer",
+         "objects":[
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":161,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":691.212121212121,
+                 "y":1404.72727272727
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":171,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":2100.30303030303,
+                 "y":1492.60606060606
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":172,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":2348.78787878788,
+                 "y":1010.78787878788
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":173,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":1054.84848484848,
+                 "y":1125.93939393939
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":174,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":345.757575757576,
+                 "y":292.606060606061
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":180,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":2066.9696969697,
+                 "y":138.060606060606
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":181,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":1718.48484848485,
+                 "y":422.909090909091
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":183,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":945.757575757576,
+                 "y":635.030303030303
+                }, 
+                {
+                 "gid":62,
+                 "height":64,
+                 "id":184,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":60,
+                 "x":70,
+                 "y":671.393939393939
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "name":"CoinLayer",
          "objects":[
                 {
@@ -157,8 +275,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":2305.33333333333,
-                 "y":640.666666666667
+                 "x":2305.33,
+                 "y":640.667
                 }, 
                 {
                  "gid":56,
@@ -169,8 +287,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":2146.33333333333,
-                 "y":383.333333333333
+                 "x":2146.33,
+                 "y":383.333
                 }, 
                 {
                  "gid":56,
@@ -226,7 +344,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":151,
+ "nextobjectid":185,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.3",
@@ -257,6 +375,19 @@
          "tilecount":6,
          "tileheight":32,
          "tilewidth":32
+        }, 
+        {
+         "columns":4,
+         "firstgid":62,
+         "image":"..\/..\/Descargas\/phaserTilemaps\/tilemaps\/fly_3.png",
+         "imageheight":134,
+         "imagewidth":247,
+         "margin":0,
+         "name":"fly_3",
+         "spacing":0,
+         "tilecount":8,
+         "tileheight":64,
+         "tilewidth":60
         }],
  "tilewidth":32,
  "type":"map",
