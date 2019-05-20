@@ -224,7 +224,7 @@ class Game extends Phaser.Scene {
       enemies.children.entries.forEach(function (enemy) {
         enemy.setVelocityX(enemy.speedX)
         enemy.setY(enemy.staticY)
-        enemy.speedX < 0 ? enemy.anims.play('movement_harpy_left', enemies) : enemy.anims.play('movement_harpy_right', enemies)
+        enemy.speedX < 0 ? enemy.anims.play('movement_harpy_left', true) : enemy.anims.play('movement_harpy_right', true)
       })
     }
     player.anims.play('idle', true)
