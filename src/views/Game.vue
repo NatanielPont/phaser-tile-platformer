@@ -122,7 +122,7 @@ export default {
         arcade: {
           gravity: { y: 300 }
         } },
-      scene: [Game, GameOver, Winner]
+      scene: [Loading, Game, GameOver, Winner]
     }
     // eslint-disable-next-line
       new Phaser.Game(config)
@@ -134,16 +134,16 @@ class Game extends Phaser.Scene {
   }
   preload () {
     console.log('PRELOAD')
-    this.load.image('tiles', tile)
-    this.load.spritesheet('coin', coin, { frameWidth: 32, frameHeight: 32 })
-    this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
-    this.load.tilemapTiledJSON('map', map)
-    this.load.image('spark', Spark)
-    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 65 })
-    this.load.audio('dieSound', soundDie)
-    this.load.audio('coinSound', soundTakeCoin)
-    this.load.audio('sound_level1', soundlevel1)
-    this.load.audio('sound_level2', soundlevel2)
+    // this.load.image('tiles', tile)
+    // this.load.spritesheet('coin', coin, { frameWidth: 32, frameHeight: 32 })
+    // this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
+    // this.load.tilemapTiledJSON('map', map)
+    // this.load.image('spark', Spark)
+    // this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 65 })
+    // this.load.audio('dieSound', soundDie)
+    // this.load.audio('coinSound', soundTakeCoin)
+    // this.load.audio('sound_level1', soundlevel1)
+    // this.load.audio('sound_level2', soundlevel2)
   }
   create () {
     console.log('CREATED')
@@ -387,6 +387,156 @@ class Winner extends Phaser.Scene {
   enterButtonActiveState () {
     this.clickButton.setStyle({ fill: '#0ff' })
   }
+}
+class Loading extends Phaser.Scene {
+  constructor () {
+    super({ key: 'Loading' })
+  }
+  preload () {
+    var progressBar = this.add.graphics()
+    var progressBox = this.add.graphics()
+    progressBox.fillStyle(0x222222, 0.8)
+    progressBox.fillRect(240, 270, 320, 50)
+
+    var width = this.cameras.main.width
+    var height = this.cameras.main.height
+    var loadingText = this.make.text({
+      x: width / 2,
+      y: height / 2 - 50,
+      text: 'Loading...',
+      style: {
+        font: '20px monospace',
+        fill: '#ffffff'
+      }
+    })
+    loadingText.setOrigin(0.5, 0.5)
+
+    var percentText = this.make.text({
+      x: width / 2,
+      y: height / 2 - 5,
+      text: '0%',
+      style: {
+        font: '18px monospace',
+        fill: '#ffffff'
+      }
+    })
+    percentText.setOrigin(0.5, 0.5)
+
+    var assetText = this.make.text({
+      x: width / 2,
+      y: height / 2 + 50,
+      text: '',
+      style: {
+        font: '18px monospace',
+        fill: '#ffffff'
+      }
+    })
+
+    assetText.setOrigin(0.5, 0.5)
+
+    this.load.on('progress', function (value) {
+      percentText.setText(parseInt(value * 100) + '%')
+      progressBar.clear()
+      progressBar.fillStyle(0xffffff, 1)
+      progressBar.fillRect(250, 280, 300 * value, 30)
+    })
+
+    this.load.on('fileprogress', function (file) {
+      assetText.setText('Loading asset: ' + file.key)
+    })
+
+    this.load.on('complete', function () {
+      progressBar.destroy()
+      progressBox.destroy()
+      loadingText.destroy()
+      percentText.destroy()
+      assetText.destroy()
+    })
+    this.load.image('tiles', tile)
+    this.load.spritesheet('coin', coin, { frameWidth: 32, frameHeight: 32 })
+    this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
+    this.load.tilemapTiledJSON('map', map)
+    this.load.image('spark', Spark)
+    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 65 })
+    this.load.audio('dieSound', soundDie)
+    this.load.audio('coinSound', soundTakeCoin)
+    this.load.audio('sound_level1', soundlevel1)
+    this.load.audio('sound_level2', soundlevel2)
+  }
+
+  create () {
+    this.scene.start('Game')
+  }
+  // preload () {
+  //   this.load.on('progress', function (value) {
+  //     // console.log(value);
+  //     percentText.setText(parseInt(value * 100) + '%')
+  //   })
+  //   this.load.on('fileprogress', function (file) {
+  //     // console.log(file.src);
+  //     assetText.setText('Loading asset: ' + file.key)
+  //   })
+  //   this.load.on('complete', function () {
+  //     // console.log('complete');
+  //     progressBar.destroy()
+  //     progressBox.destroy()
+  //     loadingText.destroy()
+  //     percentText.destroy()
+  //     assetText.destroy()
+  //   })
+  //   var progressBar = this.add.graphics()
+  //   var progressBox = this.add.graphics()
+  //   progressBox.fillStyle(0x222222, 0.8)
+  //   progressBox.fillRect(240, 270, 320, 50)
+  //   var width = this.cameras.main.width
+  //   var height = this.cameras.main.height
+  //   var loadingText = this.make.text({
+  //     x: width / 2,
+  //     y: height / 2 - 50,
+  //     text: 'Loading...',
+  //     style: {
+  //       font: '20px monospace',
+  //       fill: '#ffffff'
+  //     }
+  //   })
+  //   var percentText = this.make.text({
+  //     x: width / 2,
+  //     y: height / 2 - 5,
+  //     text: '0%',
+  //     style: {
+  //       font: '18px monospace',
+  //       fill: '#ffffff'
+  //     }
+  //   })
+  //   percentText.setOrigin(0.5, 0.5)
+  //   var assetText = this.make.text({
+  //     x: width / 2,
+  //     y: height / 2 + 50,
+  //     text: '',
+  //     style: {
+  //       font: '18px monospace',
+  //       fill: '#ffffff'
+  //     }
+  //   })
+  //   assetText.setOrigin(0.5, 0.5)
+  //   loadingText.setOrigin(0.5, 0.5)
+  //   this.load.on('fileprogress', function (file) {
+  //     assetText.setText('Loading asset: ' + file.key)
+  //   })
+  //   this.load.on('progress', function (value) {
+  //     // console.log(value);
+  //     progressBar.clear()
+  //     progressBar.fillStyle(0xffffff, 1)
+  //     progressBar.fillRect(250, 280, 300 * value, 30)
+  //   })
+  //   // for (var i = 0; i < 100; i++) {
+  //   //   this.load.image('File'+i);
+  //   // }
+  // }
+  // create () {
+  //   // this.scene.start('level1')
+  //   this.scene.start('Game')
+  // }
 }
 </script>
 <style>
