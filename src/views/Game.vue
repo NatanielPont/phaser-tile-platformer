@@ -8,7 +8,7 @@ import Phaser from 'phaser'
 import tile from '../assets/tilesets/slopes32mud.png'
 import coin from '../assets/img/coin7.png'
 import Player from '../assets/img/player.png'
-import Harpy from '../assets/img/fly_enemy.png'
+import Harpy from '../assets/img/fly_7.png'
 import Spark from '../assets/particles/blue.png'
 import map from '../assets/tilemaps/map.json'
 import soundDie from '../assets/audio/dead.mp3'
@@ -68,7 +68,7 @@ function createCoins () {
 function createEnemies () {
   EnemyLayer.forEach(object => {
     let obj = enemies.create(object.x, object.y, 'harpy')
-    obj.setScale(object.width / 60, object.height / 70)
+    obj.setScale(object.width / 64, object.height / 64)
     obj.setOrigin(0)
     obj.body.width = object.width
     obj.body.height = object.height
@@ -139,7 +139,7 @@ class Game extends Phaser.Scene {
     this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
     this.load.tilemapTiledJSON('map', map)
     this.load.image('spark', Spark)
-    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 67 })
+    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 65 })
     this.load.audio('dieSound', soundDie)
     this.load.audio('coinSound', soundTakeCoin)
     this.load.audio('sound_level1', soundlevel1)
