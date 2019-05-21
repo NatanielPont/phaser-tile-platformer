@@ -29,7 +29,7 @@ let coinScore = 0
 let text
 let emitter
 var particles
-let level2 = falsegit status
+let level2 = false
 let help
 
 // sounds
