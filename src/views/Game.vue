@@ -13,6 +13,9 @@ import Spark from '../assets/particles/blue.png'
 import map from '../assets/tilemaps/map.json'
 import soundDie from '../assets/audio/dead.mp3'
 import soundTakeCoin from '../assets/audio/coin.mp3'
+// sounds levels
+import soundlevel1 from '../assets/audio/levels/song_level1.mp3'
+import soundlevel2 from '../assets/audio/levels/song_level2.mp3'
 
 // variables of game
 var player
@@ -32,6 +35,18 @@ let help
 // sounds
 let soundDead
 let soundCoin
+// sound levels
+let soundlvl1
+let soundlvl2
+// let configSoundlvl1 = {
+//   mute: false,
+//   volume: 1,
+//   rate: 1,
+//   detune: 0,
+//   seek: 0,
+//   loop: true,
+//   delay: 0
+// }
 
 let worldLayer
 let innerWorldLayer
@@ -53,7 +68,7 @@ function createCoins () {
 function createEnemies () {
   EnemyLayer.forEach(object => {
     let obj = enemies.create(object.x, object.y, 'harpy')
-    obj.setScale(object.width / 60, object.height / 66)
+    obj.setScale(object.width / 60, object.height / 70)
     obj.setOrigin(0)
     obj.body.width = object.width
     obj.body.height = object.height
@@ -83,6 +98,9 @@ function collectCoin (player, coin) {
 }
 
 function gameOver () {
+  if (soundlvl2) {
+    soundlvl2.stop()
+  }
   soundDead.play()
   this.scene.start('GameOver')
 }
@@ -121,12 +139,33 @@ class Game extends Phaser.Scene {
     this.load.spritesheet('player', Player, { frameWidth: 28, frameHeight: 22 })
     this.load.tilemapTiledJSON('map', map)
     this.load.image('spark', Spark)
-    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 66 })
+    this.load.spritesheet('harpy', Harpy, { frameWidth: 60, frameHeight: 67 })
     this.load.audio('dieSound', soundDie)
     this.load.audio('coinSound', soundTakeCoin)
+    this.load.audio('sound_level1', soundlevel1)
+    this.load.audio('sound_level2', soundlevel2)
   }
   create () {
     console.log('CREATED')
+    // *true* param enables looping
+    // soundDead = this.sound.add('dieSound')
+    if (!level2) {
+      if (soundlvl2) {
+        soundlvl2.stop()
+      }
+      soundlvl1 = this.sound.add('sound_level1', { loop: true })
+      soundlvl1.play()
+    } else {
+      if (soundlvl1) {
+        soundlvl1.stop()
+      }
+      soundlvl2 = this.sound.add('sound_level2', { loop: true })
+      soundlvl2.play()
+    }
+
+    // soundlvl1 = new Phaser.Sound(this, 'sound_level1', 1, true)
+    //
+    // soundlvl1.play()
     mapGame = this.make.tilemap({ key: 'map' })
     const tileset = mapGame.addTilesetImage('slopes32mud', 'tiles')
     worldLayer = mapGame.createStaticLayer('collision', tileset, 0, 0)
