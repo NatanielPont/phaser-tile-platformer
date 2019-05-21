@@ -125,7 +125,7 @@ export default {
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: { y: 300 },
+          gravity: { y: 300 }
         } },
       scene: [Loading, Game, GameOver, Winner]
     }
