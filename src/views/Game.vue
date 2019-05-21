@@ -58,23 +58,28 @@ function changeDirection (enemy) {
 function createCoins () {
   CoinLayer.forEach(object => {
     let obj = coins.create(object.x, object.y, 'coin')
-    obj.setScale(object.width / 32, object.height / 32)
-    obj.setOrigin(0)
+    // obj.setScale(object.width / 32, object.height / 32)
+    // obj.setOrigin(0)
     obj.body.width = object.width
     obj.body.height = object.height
     obj.anims.play('spin', coins)
+    // obj.body.allowGravity = false
+    // obj.enableBody=true
   })
 }
 function createEnemies () {
   EnemyLayer.forEach(object => {
     let obj = enemies.create(object.x, object.y, 'harpy')
-    obj.setScale(object.width / 64, object.height / 64)
-    obj.setOrigin(0)
+    obj.setScale(object.width / 64, object.height / 65)
+    // obj.setOrigin(0)
     obj.body.width = object.width
     obj.body.height = object.height
     obj.staticY = object.y
+    obj.id = object.id
     obj.speedX = -100
+    obj.body.allowGravity = false
   })
+  // enemies.refresh()
 }
 function collectCoin (player, coin) {
   soundCoin.play()
@@ -120,7 +125,8 @@ export default {
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: { y: 300 }
+          gravity: { y: 300 },
+          debug: true
         } },
       scene: [Loading, Game, GameOver, Winner]
     }
@@ -162,22 +168,19 @@ class Game extends Phaser.Scene {
     innerWorldLayer = mapGame.createStaticLayer('map', tileset, 0, 0)
     CoinLayer = mapGame.getObjectLayer('CoinLayer')['objects']
     EnemyLayer = mapGame.getObjectLayer('EnemyLayer')['objects']
-
+    // this.physics.startSystem(Phaser.Physics.ARCADE);
     // coins
     coins = this.physics.add.staticGroup()
     enemies = this.physics.add.group()
+    enemies.enableBody = true
 
     worldLayer.setCollisionBetween(0, 140)
     innerWorldLayer.setCollisionBetween(0, 140)
     //
     player = this.physics.add.sprite(500 / 2, mapGame.heightInPixels - mapGame.heightInPixels / 5, 'player')
-    // enemy = this.physics.add.sprite(500 / 2 + 200, mapGame.heightInPixels - mapGame.heightInPixels / 6, 'harpy')
-    // enemy.staticY = enemy.y
-    // this.physics.startSystem(Phaser.Physics.ARCADE)
+
     this.physics.add.collider(player, worldLayer)
     this.physics.add.collider(player, innerWorldLayer)
-    // this.physics.add.collider(enemies, worldLayer)
-    // this.physics.add.collider(enemies, innerWorldLayer)
 
     // sounds
     soundDead = this.sound.add('dieSound')
@@ -216,6 +219,9 @@ class Game extends Phaser.Scene {
 
     this.physics.add.collider(enemies, worldLayer, changeDirection)
     this.physics.add.collider(enemies, innerWorldLayer, changeDirection)
+    // Phaser.Actions.Call(EnemyLayer.getChildren(), function (letter) {
+    //   letter.body.allowGravity = false;
+    // });
 
     this.physics.add.overlap(player, coins, collectCoin, null, this)
     this.physics.add.overlap(player, enemies, gameOver, null, this)
@@ -252,8 +258,8 @@ class Game extends Phaser.Scene {
     if (enemies) {
       enemies.children.entries.forEach(function (enemy) {
         enemy.setVelocityX(enemy.speedX)
-        enemy.setY(enemy.staticY)
-        enemy.speedX < 0 ? enemy.anims.play('movement_harpy_left', true) : enemy.anims.play('movement_harpy_right', true)
+        // enemy.setY(enemy.staticY)
+        enemy.speedX < 0 ? enemy.anims.play('movement_harpy_left', enemies) : enemy.anims.play('movement_harpy_right', enemies)
       })
     }
     player.anims.play('idle', true)
@@ -265,8 +271,6 @@ class Game extends Phaser.Scene {
       player.setAccelerationX(200)
       player.setFrame(1)
       emitter.setPosition(player.body.x, player.body.y + player.body.height)
-
-      // emitter.setPosition(player.body.x+player.body.width , player.body.y+player.body.height)
     } else {
       player.setAccelerationX(0)
       emitter.setPosition(player.body.x + player.body.width / 2, player.body.y + player.body.height)
@@ -316,13 +320,7 @@ class GameOver extends Phaser.Scene {
 
         this.scene.start('Game')
       })
-
-    // this.updateClickCountText(clickCount);
   }
-
-  // updateClickCountText(clickCount) {
-  //   this.clickCountText.setText(`Button has been clicked ${clickCount} times.`);
-  // }
 
   enterButtonHoverState () {
     this.clickButton.setStyle({ fill: '#ff0' })
@@ -465,7 +463,4 @@ class Loading extends Phaser.Scene {
         display: block;
         margin: auto;
     }
-    /*#game{*/
-    /**/
-    /*}*/
 </style>
