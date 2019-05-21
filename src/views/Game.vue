@@ -126,7 +126,6 @@ export default {
         default: 'arcade',
         arcade: {
           gravity: { y: 300 },
-          debug: true
         } },
       scene: [Loading, Game, GameOver, Winner]
     }
